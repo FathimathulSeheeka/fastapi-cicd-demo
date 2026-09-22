@@ -53,3 +53,30 @@ jobs:
         if: github.event_name == 'push'
         run: |
           docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+  
+  deploy-test:
+    needs: test-and-build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull Docker image
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Start application
+        run: |
+          docker run -d \
+            --name fastapi-app \
+            -p 8000:8000 \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Wait for application
+        run: sleep 5
+
+      - name: Health check
+        run: |
+          curl --fail http://localhost:8000/health
+
+      - name: Show running container
+        run: docker ps
