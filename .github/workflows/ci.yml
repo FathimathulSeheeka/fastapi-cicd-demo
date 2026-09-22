@@ -13,6 +13,9 @@ permissions:
   contents: read
   packages: write
 
+env:
+  IMAGE_NAME: ghcr.io/fathimathulseheeka/fastapi-cicd-demo
+
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
@@ -44,9 +47,9 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
+          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
 
       - name: Push Docker image
         if: github.event_name == 'push'
         run: |
-          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
